@@ -100,15 +100,3 @@ Reviv/
 | Runnable | `RescueTask`, `ResourceMonitorTask` |
 | Multithreading | `DispatcherMenu.startRescue` (start + join), `AdminMenu.startMonitors/stopMonitors` (interrupt) |
 | JDBC | `database/` only: Connection, DriverManager, Statement, PreparedStatement, ResultSet, SQLException |
-
-## 10 viva questions
-1. **Why `extends Exception` for custom exceptions?** It makes them checked exceptions, so the compiler forces callers to handle or declare them.
-2. **Difference between `throw` and `throws`?** `throw` raises one exception object; `throws` in the method header warns callers which exceptions may come out.
-3. **Why close resources in `finally`?** `finally` runs whether or not an exception happened, so the connection is never leaked.
-4. **Why wrap `SQLException` in `DatabaseException`?** Menus and services stay independent of JDBC; only `database/` knows `java.sql`.
-5. **Why PreparedStatement and not Statement?** `?` placeholders stop SQL injection and the database parses the query once.
-6. **Why LinkedList for the SOS queue?** `addLast` and `removeFirst` give first come, first served in O(1).
-7. **Why HashSet for SOS IDs?** It stores unique values only, and `contains` is fast, so duplicates are found immediately.
-8. **Thread vs Runnable?** `extends Thread` uses up your single parent class; `implements Runnable` only provides the job and `new Thread(task)` runs it.
-9. **What does `join()` do?** The calling thread waits until the other thread finishes, so the menu waits for the rescue tasks.
-10. **How do you stop a thread without shared flags?** `interrupt()` makes `sleep()` throw `InterruptedException`; the loop catches it and ends. Threads use their own DAOs, so no data is shared.
