@@ -1,9 +1,11 @@
 // src/com/reviv/threads/RescueTask.java
 package com.reviv.threads;
 
-import com.reviv.database.SOSDAO;
-import com.reviv.database.TeamDAO;
+import com.reviv.service.SOSService;
+import com.reviv.service.TeamService;
+import com.reviv.service.ZoneService;
 import com.reviv.exception.DatabaseException;
+import com.reviv.exception.InvalidInputException;
 
 public class RescueTask implements Runnable {
     // Number of rescue steps and the time of each step in milliseconds.
@@ -29,10 +31,10 @@ public class RescueTask implements Runnable {
             return;
         }
         try {
-            new SOSDAO().updateStatus(sosId, "RESOLVED");
-            new TeamDAO().setAvailable(teamId, true);
+            new SOSService(new ZoneService()).changeStatus(sosId, "RESOLVED");
+            new TeamService().setTeamAvailability(teamId, true);
             System.out.println("[RESCUE] " + teamName + " finished " + sosId + " and is free again");
-        } catch (DatabaseException e) {
+        } catch (DatabaseException | InvalidInputException e) {
             System.out.println("[RESCUE] Could not save result of " + sosId + ": " + e.getMessage());
         }
     }

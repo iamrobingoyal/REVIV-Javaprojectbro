@@ -1,7 +1,8 @@
 // src/com/reviv/threads/EscalationThread.java
 package com.reviv.threads;
 
-import com.reviv.database.SOSDAO;
+import com.reviv.service.SOSService;
+import com.reviv.service.ZoneService;
 import com.reviv.exception.DatabaseException;
 import com.reviv.model.SOSRequest;
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ public class EscalationThread extends Thread {
     private static final int SCAN_INTERVAL_MS = 5000;
     // A request is escalated after this many scans while still pending.
     private static final int WARN_AFTER_SCANS = 2;
-    // This thread has its own DAO, so it never shares data with the menu.
-    private SOSDAO sosDAO = new SOSDAO();
+    // This thread reads pending requests through the SOS service.
+    private SOSService sosService = new SOSService(new ZoneService());
     // Age of each pending SOS counted in scans (simple int counter).
     private HashMap<String, Integer> ages = new HashMap<String, Integer>();
 
@@ -35,7 +36,7 @@ public class EscalationThread extends Thread {
 
     // Reads pending SOS from the database and warns about the old ones.
     private void scanPending() throws DatabaseException {
-        ArrayList<SOSRequest> pending = sosDAO.getSosByStatus("REPORTED");
+        ArrayList<SOSRequest> pending = sosService.getSosByStatus("REPORTED");
         HashMap<String, Integer> newAges = new HashMap<String, Integer>();
         for (SOSRequest s : pending) {
             int age = getAge(s.getSosId()) + 1;

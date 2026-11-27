@@ -1,9 +1,6 @@
 // src/com/reviv/service/ReportService.java
 package com.reviv.service;
 
-import com.reviv.database.ResourceDAO;
-import com.reviv.database.SOSDAO;
-import com.reviv.database.TeamDAO;
 import com.reviv.exception.DatabaseException;
 import com.reviv.model.RescueTeam;
 import com.reviv.model.Resource;
@@ -12,15 +9,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ReportService {
-    // DAOs used to read the report data.
-    private SOSDAO sosDAO = new SOSDAO();
-    private TeamDAO teamDAO = new TeamDAO();
-    private ResourceDAO resourceDAO = new ResourceDAO();
+    // Reuse the application services for report data.
+    private SOSService sosService = new SOSService(new ZoneService());
+    private TeamService teamService = new TeamService();
+    private ResourceService resourceService = new ResourceService();
 
     // Counts incidents (SOS requests) per zone.
     public HashMap<String, Integer> getIncidentsPerZone() throws DatabaseException {
         HashMap<String, Integer> counts = new HashMap<String, Integer>();
-        for (SOSRequest s : sosDAO.getAllSosRequests()) {
+        for (SOSRequest s : sosService.getAllSosRequests()) {
             addOne(counts, s.getZone());
         }
         return counts;
@@ -29,8 +26,8 @@ public class ReportService {
     // Counts how many SOS requests each team was given.
     public HashMap<String, Integer> getTeamWorkload() throws DatabaseException {
         HashMap<String, Integer> counts = new HashMap<String, Integer>();
-        ArrayList<RescueTeam> teams = teamDAO.getAllTeams();
-        for (SOSRequest s : sosDAO.getAllSosRequests()) {
+        ArrayList<RescueTeam> teams = teamService.getAllTeams();
+        for (SOSRequest s : sosService.getAllSosRequests()) {
             if (s.getTeamId() > 0) {
                 addOne(counts, findTeamName(teams, s.getTeamId()));
             }
@@ -40,7 +37,7 @@ public class ReportService {
 
     // Returns all resources with their used quantity.
     public ArrayList<Resource> getResourceUsage() throws DatabaseException {
-        return resourceDAO.getAllResources();
+        return resourceService.getAllResources();
     }
 
     // Adds 1 to the count of a key in the map.

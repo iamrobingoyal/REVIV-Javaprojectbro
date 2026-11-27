@@ -1,7 +1,7 @@
 // src/com/reviv/threads/ResourceMonitorTask.java
 package com.reviv.threads;
 
-import com.reviv.database.ResourceDAO;
+import com.reviv.service.ResourceService;
 import com.reviv.exception.DatabaseException;
 import com.reviv.model.Resource;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ public class ResourceMonitorTask implements Runnable {
     private static final int LOW_STOCK_LIMIT = 20;
     // Time between two checks in milliseconds.
     private static final int CHECK_INTERVAL_MS = 8000;
-    // This task has its own DAO, so it never shares data with the menu.
-    private ResourceDAO resourceDAO = new ResourceDAO();
+    // This task reads inventory through the resource service.
+    private ResourceService resourceService = new ResourceService();
 
     // Checks the stock again and again until the thread is interrupted.
     @Override
@@ -31,7 +31,7 @@ public class ResourceMonitorTask implements Runnable {
     // Reads the stock from the database and prints low-stock warnings.
     private void checkStock() {
         try {
-            ArrayList<Resource> list = resourceDAO.getAllResources();
+            ArrayList<Resource> list = resourceService.getAllResources();
             for (Resource r : list) {
                 if (r.getQuantity() < LOW_STOCK_LIMIT) {
                     System.out.println("[LOW STOCK WARNING] " + r.getResourceName() + " has only " + r.getQuantity() + " left");
